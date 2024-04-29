@@ -1,9 +1,13 @@
 package com.zhangying.myspring.test;
 
 import com.zhangying.myspring.beans.BeansException;
+import com.zhangying.myspring.beans.PropertyValue;
+import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.BeanFactory;
+import com.zhangying.myspring.beans.factory.config.BeanReference;
 import com.zhangying.myspring.beans.factory.support.DefaultListableBeanFactory;
+import com.zhangying.myspring.test.bean.UserDao;
 import com.zhangying.myspring.test.bean.UserService;
 import org.junit.Test;
 
@@ -45,6 +49,33 @@ public class TestBeanFactory {
         userService = (UserService) beanFactory.getBean("userService", "小傅哥");
 
         userService.queryUserInfo();
+    }
+
+    @Test
+    public void TestDIWithoutConcurrentSolvement() throws Exception{
+        // 1. 初始化 BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        // 2. 注册UserDao
+        beanFactory.registerBeanDefinition("userDao", new BeanDefinition(UserDao.class));
+
+        //3. 实例化UserService
+        PropertyValues propertyValues = new PropertyValues();
+        PropertyValue propertyValue = new PropertyValue("name", "James");
+        propertyValues.addPropertyValue(propertyValue);
+        propertyValue = new PropertyValue("userDao", new BeanReference("userDao"));
+        propertyValues.addPropertyValue(propertyValue);
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class, propertyValues);
+
+        // 4. 注册UserService
+        beanFactory.registerBeanDefinition("userService", beanDefinition);
+
+        // 5. 获取Bean
+        UserService userService = ((UserService) beanFactory.getBean("userService")); // 貌似使用的是无参构造
+
+        // 6. 使用Bean
+        userService.queryUserInfo();
+        userService.queryUserInfo("1");
     }
 
 

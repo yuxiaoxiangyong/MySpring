@@ -1,7 +1,11 @@
 package com.zhangying.myspring.beans.factory.support;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.zhangying.myspring.beans.BeansException;
+import com.zhangying.myspring.beans.PropertyValue;
+import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
+import com.zhangying.myspring.beans.factory.config.BeanReference;
 
 import java.lang.reflect.Constructor;
 
@@ -29,7 +33,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         Object bean = null;
         try {
+            // 实例化Bean
             bean = createBeanInstance(beanDefinition, beanName, args);
+            // 属性赋值
+            applyPropertyValues(beanName, bean, beanDefinition);
         } catch (BeansException e) {
             e.printStackTrace();
         }
@@ -38,8 +45,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
 
+    /**
+     * 抽象得到的创建bean实例方法
+     * @param beanDefinition
+     * @param beanName
+     * @param args
+     * @return
+     * @throws BeansException
+     */
     protected Object createBeanInstance(BeanDefinition beanDefinition, String beanName, Object[] args) throws BeansException{
-        //
+        // 解决args为空的异常
+        if(null == args)return instantiationStrategy.instantiate(beanDefinition, beanName, null, args);
         Class<?> clazz = beanDefinition.getBean();
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for(Constructor constructor : constructors){
@@ -63,7 +79,40 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         // 表明创建失败
         throw new BeansException();
+    }
+
+
+    /**
+     * 依赖注入（未解决循环依赖问题）
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     */
+    protected void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition){
+        try {
+            PropertyValues propertyValues = beanDefinition.getPropertyValues();
+            for(PropertyValue pv : propertyValues.getPropertyValueList()){
+                String name = pv.getName();
+                Object value = pv.getValue();
+                if(value instanceof BeanReference){
+                    // 这里使用的一定是无参构造函数实例化Bean
+                   value = getBean(((BeanReference) value).getBeanName());
+                }
+                // 属性填充
+                BeanUtil.setFieldValue(bean, name, value);
+            }
+        }catch (BeansException e){
+            e.printStackTrace();
+        }
 
     }
 
+    public InstantiationStrategy getInstantiationStrategy() {
+        return instantiationStrategy;
+    }
+
+
+    public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+        this.instantiationStrategy = instantiationStrategy;
+    }
 }
