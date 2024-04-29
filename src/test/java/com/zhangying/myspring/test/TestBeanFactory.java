@@ -1,7 +1,8 @@
 package com.zhangying.myspring.test;
 
-import com.zhangying.myspring.BeanDefinition;
-import com.zhangying.myspring.BeanFactory;
+import com.zhangying.myspring.beans.factory.config.BeanDefinition;
+import com.zhangying.myspring.beans.factory.BeanFactory;
+import com.zhangying.myspring.beans.factory.support.DefaultListableBeanFactory;
 import com.zhangying.myspring.test.bean.UserService;
 import org.junit.Test;
 
@@ -15,16 +16,17 @@ public class TestBeanFactory {
 
     @Test
     public void TestCreateBeanFactory() {
-
-        // 定义Bean容器
-        BeanFactory beanFactory = new BeanFactory();
-
-        // 创建Bean
-        UserService userService = new UserService();
-
-        //
-        beanFactory.registerBeanDefination("userService", new BeanDefinition(userService));
-        ((UserService) beanFactory.getBean("userService")).queryUserInfo();
+        // 1.初始化 BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        // 2.注册 bean
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+        beanFactory.registerBeanDefinition("userService", beanDefinition);
+        // 3.第一次获取 bean
+        UserService userService = (UserService) beanFactory.getBean("userService");
+        userService.queryUserInfo();
+        // 4.第二次获取 bean from Singleton
+        UserService userService_singleton = (UserService) beanFactory.getBean("userService");
+        userService_singleton.queryUserInfo();
     }
 
 
