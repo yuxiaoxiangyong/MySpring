@@ -1,5 +1,6 @@
 package com.zhangying.myspring.test;
 
+import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.BeanFactory;
 import com.zhangying.myspring.beans.factory.support.DefaultListableBeanFactory;
@@ -15,7 +16,7 @@ import org.junit.Test;
 public class TestBeanFactory {
 
     @Test
-    public void TestCreateBeanFactory() {
+    public void TestCreateBeanFactory() throws Exception{
         // 1.初始化 BeanFactory
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         // 2.注册 bean
@@ -29,6 +30,22 @@ public class TestBeanFactory {
         userService_singleton.queryUserInfo();
     }
 
+
+    @Test
+    public void TestContructorBeanFactory() throws Exception{
+        // 1.初始化 BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        // 2. 注入bean
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+        beanFactory.registerBeanDefinition("userService", beanDefinition);
+
+        // 3.获取bean
+        UserService userService = null;
+        userService = (UserService) beanFactory.getBean("userService", "小傅哥");
+
+        userService.queryUserInfo();
+    }
 
 
 }

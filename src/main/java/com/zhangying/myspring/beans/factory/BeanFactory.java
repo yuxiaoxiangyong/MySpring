@@ -1,6 +1,8 @@
 package com.zhangying.myspring.beans.factory;
 
+import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
+import javafx.beans.binding.ObjectExpression;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,7 @@ import java.util.Map;
  */
 public interface BeanFactory {
 
-    public Object getBean(String beanName);
+    public Object getBean(String beanName) throws BeansException;
 
+    public Object getBean(String beanName, Object... args) throws BeansException;
 }
