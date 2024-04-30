@@ -35,4 +35,5 @@ public class BeanDefinition {
     public PropertyValues getPropertyValues() {
         return propertyValues;
     }
+
 }

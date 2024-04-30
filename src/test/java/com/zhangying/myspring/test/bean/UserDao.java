@@ -14,9 +14,9 @@ public class UserDao {
     private static Map<String, String> database = new HashMap<>();
 
     static {
-        database.put("1", "洛杉矶湖人队");
-        database.put("2", "洛杉矶快船队");
-        database.put("3", "达拉斯独行侠队");
+        database.put("10001", "洛杉矶湖人队");
+        database.put("10002", "洛杉矶快船队");
+        database.put("10003", "达拉斯独行侠队");
     }
 
     public UserDao(){
