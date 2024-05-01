@@ -13,15 +13,25 @@ public class UserDao {
 
     private static Map<String, String> database = new HashMap<>();
 
-    static {
-        database.put("10001", "洛杉矶湖人队");
-        database.put("10002", "洛杉矶快船队");
-        database.put("10003", "达拉斯独行侠队");
+
+    public void initDataMethod(){
+        System.out.println("执行：init-method");
+        database.put("10001", "小傅哥");
+        database.put("10002", "八杯水");
+        database.put("10003", "阿毛");
     }
+
 
     public UserDao(){
 
     }
+
+
+    public void destroyDataMethod(){
+        System.out.println("执行：destroy-method");
+        database.clear();
+    }
+
 
     public String get(String key){
         return database.get(key);

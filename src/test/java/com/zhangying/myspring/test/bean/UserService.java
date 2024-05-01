@@ -1,12 +1,15 @@
 package com.zhangying.myspring.test.bean;
 
+import com.zhangying.myspring.beans.factory.DisposableBean;
+import com.zhangying.myspring.beans.factory.InitializingBean;
+
 /**
  * @className: UserService
  * @author: Ying Zhang
  * @version: 1.0
  * @date: 2024/4/29 15:18
  */
-public class UserService {
+public class UserService implements InitializingBean, DisposableBean {
 
     private String name;
 
@@ -29,6 +32,17 @@ public class UserService {
 
     public UserService(){
 
+    }
+
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("执行: UserService.destroy");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("执行: UserService.afterPropertiesSet");
     }
 
     public void setName(String name) {
