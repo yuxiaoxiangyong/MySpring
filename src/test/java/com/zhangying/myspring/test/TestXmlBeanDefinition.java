@@ -51,4 +51,16 @@ public class TestXmlBeanDefinition {
         UserService userService = applicationContext.getBean("userService", UserService.class);
         userService.queryUserInfo("10001");
     }
+
+    @Test
+    public void TestFactoryBean() throws Exception{
+        ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath:factory_spring.xml");
+        classPathXmlApplicationContext.registerShutdownHook();
+        UserService userService1 = classPathXmlApplicationContext.getBean("userService", UserService.class);
+        UserService userService2 = classPathXmlApplicationContext.getBean("userService", UserService.class);
+        System.out.println(userService1);
+        System.out.println(userService2);
+        userService1.queryUserInfo();
+    }
+
 }

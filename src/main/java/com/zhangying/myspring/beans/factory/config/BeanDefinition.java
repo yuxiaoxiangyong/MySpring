@@ -10,6 +10,10 @@ import com.zhangying.myspring.beans.PropertyValues;
  */
 public class BeanDefinition {
 
+    String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
+
+    String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+
     private Class bean;
 
     private PropertyValues propertyValues;
@@ -17,6 +21,19 @@ public class BeanDefinition {
     private String initMethodName; // 初始化方法名
 
     private String destroyMethodName; // 销毁方法名
+
+    private String scope = SCOPE_SINGLETON;
+
+    private boolean singleton = true;
+
+    private boolean prototype = false;
+
+
+    public void setScope(String scope){
+        this.scope = scope;
+        this.singleton = SCOPE_SINGLETON.equals(scope);
+        this.prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
 
     public BeanDefinition(Class bean, PropertyValues propertyValues) {
         this.bean = bean;
@@ -64,5 +81,10 @@ public class BeanDefinition {
 
     public void setDestroyMethodName(String destroyMethodName) {
         this.destroyMethodName = destroyMethodName;
+    }
+
+
+    public boolean isSingleton(){
+        return this.singleton;
     }
 }

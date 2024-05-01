@@ -2,6 +2,7 @@ package com.zhangying.myspring.beans.factory.support;
 
 import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.BeanFactory;
+import com.zhangying.myspring.beans.factory.FactoryBean;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.config.BeanPostProcessor;
 import com.zhangying.myspring.beans.factory.config.ConfigurableBeanFactory;
@@ -16,7 +17,7 @@ import java.util.List;
  * @version: 1.0
  * @date: 2024/4/29 16:09
  */
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
 
     /** ClassLoader to resolve bean class names with, if necessary */
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
@@ -48,10 +49,29 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     protected <T> T doGet(String beanName, Object[] args) throws BeansException{
         Object bean = getSingleton(beanName);
-        if(bean != null)return (T)bean;
+        if(bean != null){
+            return ((T) getObjectForBeanInstance(bean, beanName));
+        }
 
         BeanDefinition beanDefinition = getBeanDefination(beanName);
-        return (T)createBean(beanName, beanDefinition, args);
+        Object currentBean = createBean(beanName, beanDefinition, args);
+        return (T)getObjectForBeanInstance(currentBean, beanName);
+    }
+
+    private Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
+        }
+
+        Object object = getCachedObjectForFactoryBean(beanName);
+
+        if (object == null) {
+            // 当前bean为新创建的
+            FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+            object = getObjectFromFactoryBean(factoryBean, beanName);
+        }
+
+        return object;
     }
 
 
@@ -78,4 +98,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     public ClassLoader getBeanClassLoader() {
         return this.beanClassLoader;
     }
+
+
 }

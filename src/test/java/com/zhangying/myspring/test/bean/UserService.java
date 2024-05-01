@@ -19,12 +19,13 @@ public class UserService implements InitializingBean, DisposableBean, Applicatio
     private String location;
     private UserDao userDao;
 
+    private IUserDao iUserDao;
     //private ApplicationContext applicationContext;
 
     //private BeanFactory beanFactory;
 
     public void queryUserInfo(){
-        System.out.println(uId + userDao);
+        System.out.println(iUserDao.queryUserName("10001") + company);
     }
 
     public void queryUserInfo(String id){
