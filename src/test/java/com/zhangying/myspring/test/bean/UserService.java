@@ -1,7 +1,9 @@
 package com.zhangying.myspring.test.bean;
 
-import com.zhangying.myspring.beans.factory.DisposableBean;
-import com.zhangying.myspring.beans.factory.InitializingBean;
+import com.zhangying.myspring.beans.BeansException;
+import com.zhangying.myspring.beans.factory.*;
+import com.zhangying.myspring.context.ApplicationContext;
+import com.zhangying.myspring.context.ApplicationContextAware;
 
 /**
  * @className: UserService
@@ -9,14 +11,17 @@ import com.zhangying.myspring.beans.factory.InitializingBean;
  * @version: 1.0
  * @date: 2024/4/29 15:18
  */
-public class UserService implements InitializingBean, DisposableBean {
+public class UserService implements InitializingBean, DisposableBean, ApplicationContextAware, BeanFactoryAware, BeanNameAware,BeanClassLoaderAware {
 
     private String name;
-
     private String uId;
     private String company;
     private String location;
     private UserDao userDao;
+
+    //private ApplicationContext applicationContext;
+
+    //private BeanFactory beanFactory;
 
     public void queryUserInfo(){
         System.out.println(uId + userDao);
@@ -63,5 +68,27 @@ public class UserService implements InitializingBean, DisposableBean {
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
+    }
+
+    // Aware接口
+
+    @Override
+    public void setClassLoader(ClassLoader classLoader) {
+        System.out.println("ClassLoader:" + classLoader);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        System.out.println("BeanFactory: " + beanFactory);
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        System.out.println("BeanName: " + name);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        System.out.println("ApplicationContext:" + applicationContext);
     }
 }
