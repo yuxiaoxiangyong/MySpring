@@ -5,6 +5,7 @@ import com.zhangying.myspring.beans.factory.xml.XmlBeanDefinitionReader;
 import com.zhangying.myspring.context.support.ClassPathXmlApplicationContext;
 import com.zhangying.myspring.test.bean.UserService;
 import com.zhangying.myspring.test.common.MyBeanPostProcessor;
+import com.zhangying.myspring.test.event.CustomEvent;
 import org.junit.Test;
 
 /**
@@ -61,6 +62,14 @@ public class TestXmlBeanDefinition {
         System.out.println(userService1);
         System.out.println(userService2);
         userService1.queryUserInfo();
+    }
+
+
+    @Test
+    public void test_event() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:event.xml");
+        applicationContext.publishEvent(new CustomEvent(applicationContext, 1019129009086763L, "成功了！"));
+        applicationContext.registerShutdownHook();
     }
 
 }

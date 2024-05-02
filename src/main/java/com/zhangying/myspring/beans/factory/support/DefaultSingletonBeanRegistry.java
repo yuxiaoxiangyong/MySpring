@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
+    protected static final Object NULL_OBJECT = new Object();
+
     // 单例bean的缓存
     private final Map<String, Object> singletonObjects = new HashMap<>();
 
@@ -52,6 +54,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
                 System.out.println(("Destroy method on bean with name '" + beanName + "' threw an exception"));
             }
         }
+    }
+
+
+    @Override
+    public void registrySingleton(String beanName, Object singletonObject) {
+        singletonObjects.put(beanName, singletonObject);
     }
 
 }
