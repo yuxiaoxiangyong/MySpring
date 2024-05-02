@@ -5,10 +5,8 @@ import com.zhangying.myspring.aop.TargetSource;
 import com.zhangying.myspring.aop.aspectj.AspectJExpressionPointcut;
 import com.zhangying.myspring.aop.framework.Cglib2AopProxy;
 import com.zhangying.myspring.aop.framework.JdkDynamicAopProxy;
-import com.zhangying.myspring.test.bean.IUserService;
-import com.zhangying.myspring.test.bean.MyUserService;
-import com.zhangying.myspring.test.bean.UserService;
-import com.zhangying.myspring.test.bean.UserServiceInterceptor;
+import com.zhangying.myspring.context.support.ClassPathXmlApplicationContext;
+import com.zhangying.myspring.test.bean.*;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -54,5 +52,21 @@ public class TestAoP {
         // Cglib动态代理
         IUserService userService2 = ((IUserService) new Cglib2AopProxy(advisedSupport).getProxy());
         userService2.queryUserInfo();
+    }
+
+
+    @Test
+    public void test_property() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-property.xml");
+        AutoBeanUserService userService = applicationContext.getBean("autoBeanUserService", AutoBeanUserService.class);
+        System.out.println("测试结果：" + userService);
+    }
+
+
+    @Test
+    public void test_scan() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
+        AutoBeanUserService userService = applicationContext.getBean("autoBeanUserService", AutoBeanUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
     }
 }

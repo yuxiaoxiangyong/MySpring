@@ -32,4 +32,9 @@ public class PropertyValues {
     public List<PropertyValue> getPropertyValueList() {
         return propertyValueList;
     }
+
+
+    public PropertyValue[] getPropertyValues() {
+        return this.propertyValueList.toArray(new PropertyValue[0]);
+    }
 }
