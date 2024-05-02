@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 提供方法匹配验证
  * @className: AspectJExpressionPointcut
  * @author: Ying Zhang
  * @version: 1.0

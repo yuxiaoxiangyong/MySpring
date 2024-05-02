@@ -3,6 +3,7 @@ package com.zhangying.myspring.test;
 import com.zhangying.myspring.beans.factory.support.DefaultListableBeanFactory;
 import com.zhangying.myspring.beans.factory.xml.XmlBeanDefinitionReader;
 import com.zhangying.myspring.context.support.ClassPathXmlApplicationContext;
+import com.zhangying.myspring.test.bean.IUserService;
 import com.zhangying.myspring.test.bean.UserService;
 import com.zhangying.myspring.test.common.MyBeanPostProcessor;
 import com.zhangying.myspring.test.event.CustomEvent;
@@ -70,6 +71,14 @@ public class TestXmlBeanDefinition {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:event.xml");
         applicationContext.publishEvent(new CustomEvent(applicationContext, 1019129009086763L, "成功了！"));
         applicationContext.registerShutdownHook();
+    }
+
+
+    @Test
+    public void TestAoP() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:autoaop.xml");
+        IUserService userService = applicationContext.getBean("myUserService", IUserService.class);
+        userService.queryUserInfo();
     }
 
 }

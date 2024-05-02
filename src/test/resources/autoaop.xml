@@ -1,0 +1,18 @@
+<beans>
+
+    <bean id="myUserService" class="com.zhangying.myspring.test.bean.MyUserService"/>
+
+    <bean class="com.zhangying.myspring.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <bean id="beforeAdvice" class="com.zhangying.myspring.test.bean.UserServiceBeforeAdvice"/>
+
+    <bean id="methodInterceptor" class="com.zhangying.myspring.aop.framework.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+
+    <bean id="pointcutAdvisor" class="com.zhangying.myspring.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* com.zhangying.myspring.test.bean.IUserService.*(..))"/>
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
+
+</beans>

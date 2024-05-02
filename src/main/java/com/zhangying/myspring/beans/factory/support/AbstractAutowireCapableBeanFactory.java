@@ -6,10 +6,7 @@ import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.PropertyValue;
 import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.*;
-import com.zhangying.myspring.beans.factory.config.AutowireCapableBeanFactory;
-import com.zhangying.myspring.beans.factory.config.BeanDefinition;
-import com.zhangying.myspring.beans.factory.config.BeanPostProcessor;
-import com.zhangying.myspring.beans.factory.config.BeanReference;
+import com.zhangying.myspring.beans.factory.config.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -38,6 +35,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         Object bean = null;
         try {
+
+            /**
+             * 动态代理原理：
+             * 实际织入通知的整个流程是借助BeanPostProcessor完成的，动态代理的对象一定是类（Bean），只是动态代理应用的场景是为解决为扩展新的功能
+             * 不断创建新的类实现接口（违背OCP原则），从而导致类爆炸的问题。这里使用动态代理的前提是代理对象和目标对象实现公共的接口，因为静态代理的实现就是将目标对象
+             * 当做静态代理对象的属性，从而在不改变原有代码的前提下，通过扩展新类来满足开发需求的。
+             * 动态代理返回的一定是代理对象，只是代理的过程是在内存中以字节码的形式完成的，符合OCP原则
+             * AOP实现原理：
+             * 完成aop就是执行切面的过程，切面 = 切点 + 通知（扩展部分的代码），只不过通知部分是通过动态代理完成的。
+             * 确定切点是用切点表达式来完成的，通知需要解决拦截器来实现，只有与拦截器所匹配的类型的Bean才可以完成动态代理，匹配过程实际就是利用
+             * 切点表达是进行判断的过程。
+             */
+
+            // pre. 判断是否返回代理对象  代理对象为满足OCP原则设计的，根本不需要加入到Bean容器中的
+            bean = resolveBeforeInstantiation(beanName, beanDefinition);
+            if(null != bean){
+                return bean;
+            }
             // 实例化Bean      生命周期第一步
             bean = createBeanInstance(beanDefinition, beanName, args);
             // 属性赋值         生命周期第二步
@@ -56,6 +71,27 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
 
         return bean;
+    }
+
+
+    protected Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) throws BeansException {
+        Object bean = applyBeanPostProcessorBeforeInstantiation(beanDefinition.getBean(), beanName);
+        if (null != bean) {
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        }
+        return bean;
+    }
+
+
+    // 注意，此方法为新增方法，与 “applyBeanPostProcessorBeforeInitialization” 是两个方法
+    public Object applyBeanPostProcessorBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            if (processor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor)processor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (null != result) return result;
+            }
+        }
+        return null;
     }
 
 
