@@ -69,4 +69,12 @@ public class TestAoP {
         AutoBeanUserService userService = applicationContext.getBean("autoBeanUserService", AutoBeanUserService.class);
         System.out.println("测试结果：" + userService.queryUserInfo());
     }
+
+
+    @Test
+    public void TestAutoWired() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring_autowire.xml");
+        AutoBeanUserService userService = applicationContext.getBean("autoBeanUserService", AutoBeanUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
+    }
 }

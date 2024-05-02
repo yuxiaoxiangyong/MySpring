@@ -1,6 +1,7 @@
 package com.zhangying.myspring.context.annotation;
 
 import cn.hutool.core.util.StrUtil;
+import com.zhangying.myspring.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.support.BeanDefinitionRegistry;
 import com.zhangying.myspring.stereotype.Component;
@@ -66,6 +67,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
                 registry.registerBeanDefinition(determineBeanName(beanDefinition), beanDefinition);
             }
         }
+
+        // 注册处理注解的 BeanPostProcessor（@Autowired、@Value）
+        // AutowiredAnnotationBeanPostProcessor并没有标注@Component,所以是无法在类扫描时注入到beanFactory中的,此处需要我们手动进行注册.
+        registry.registerBeanDefinition("com.zhangying.myspring.context.annotation.internalAutowiredAnnotationProcessor", new BeanDefinition(AutowiredAnnotationBeanPostProcessor.class));
     }
 
 }

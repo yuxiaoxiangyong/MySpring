@@ -9,6 +9,7 @@ import com.zhangying.myspring.beans.factory.config.BeanFactoryPostProcessor;
 import com.zhangying.myspring.beans.factory.config.BeanPostProcessor;
 import com.zhangying.myspring.core.io.DefaultResourceLoader;
 import com.zhangying.myspring.core.io.Resource;
+import com.zhangying.myspring.util.StringValueResolver;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -65,22 +66,54 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
                 for(PropertyValue propertyValue : propertyValues.getPropertyValues()){
                     Object value = propertyValue.getValue();
                     if(!(value instanceof String))continue;
-                    // 替换value中的值
-                    String strVal = ((String) value);
-                    StringBuilder sb = new StringBuilder();
-                    int sIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
-                    int eIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
-                    if(sIdx != -1 && eIdx != -1 && sIdx < eIdx){
-                        sb.append(strVal.substring(sIdx + 2, eIdx));
-                        String resVal = properties.getProperty(sb.toString());
-                        propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), resVal));
-                    }
-
+                    // 替换value中的值  集合并发修改异常  转array修改即可
+                    value = resolvePlaceholder(((String) value), properties);
+                    propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), value));
                 }
 
             }
+            // 向容器中添加字符串解析器，供解析@Value注解使用
+            StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(properties);
+            beanFactory.addEmbeddedValueResolver(valueResolver); // 记录resolver实际记录的是properties文件
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private class PlaceholderResolvingStringValueResolver implements StringValueResolver {
+
+        private final Properties properties;
+
+        public PlaceholderResolvingStringValueResolver(Properties properties) {
+            this.properties = properties;
+        }
+
+        @Override
+        public String resolveStringValue(String strVal) {
+            return PropertyPlaceholderConfigurer.this.resolvePlaceholder(strVal, properties);
+        }
+
+    }
+
+
+    /**
+     * 根据属性配置文件，解析字符串
+     * @param value
+     * @param properties
+     * @return
+     */
+    private String resolvePlaceholder(String value, Properties properties) {
+        String strVal = value;
+        StringBuilder buffer = new StringBuilder(strVal);
+        int startIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
+        int stopIdx = strVal.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
+        if (startIdx != -1 && stopIdx != -1 && startIdx < stopIdx) {
+            String propKey = strVal.substring(startIdx + 2, stopIdx);
+            String propVal = properties.getProperty(propKey);
+            buffer.replace(startIdx, stopIdx + 1, propVal);
+        }
+        return buffer.toString();
     }
 }

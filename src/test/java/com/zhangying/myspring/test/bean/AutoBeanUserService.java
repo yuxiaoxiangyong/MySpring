@@ -1,5 +1,7 @@
 package com.zhangying.myspring.test.bean;
 
+import com.zhangying.myspring.beans.factory.annotation.Autowired;
+import com.zhangying.myspring.beans.factory.annotation.Value;
 import com.zhangying.myspring.stereotype.Component;
 
 import java.util.Random;
@@ -12,7 +14,12 @@ import java.util.Random;
  */
 @Component("autoBeanUserService")
 public class AutoBeanUserService{
+
+    @Value("${token}")
     private String token;
+
+    @Autowired
+    private UserDao userDao;
 
     public String queryUserInfo() {
         try {
@@ -20,7 +27,7 @@ public class AutoBeanUserService{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return "小傅哥，100001，深圳";
+        return userDao.get("10001") + ",token:"+token;
     }
 
     public String register(String userName) {

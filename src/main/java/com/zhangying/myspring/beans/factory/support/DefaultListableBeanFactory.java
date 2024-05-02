@@ -4,8 +4,10 @@ import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.ConfigurableListableBeanFactory;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * @className: DefaultListableBeanFactory
@@ -68,6 +70,24 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         });
         return res;
     }
+
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        List<String> beanNames = new ArrayList<>();
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            Class beanClass = entry.getValue().getBean();
+            if (requiredType.isAssignableFrom(beanClass)) {
+                beanNames.add(entry.getKey());
+            }
+        }
+        if (1 == beanNames.size()) {
+            return getBean(beanNames.get(0), requiredType);
+        }
+
+        throw new BeansException(requiredType + "expected single bean but found " + beanNames.size() + ": " + beanNames);
+    }
+
 
     @Override
     public String[] getBeanDefinitionNames() {

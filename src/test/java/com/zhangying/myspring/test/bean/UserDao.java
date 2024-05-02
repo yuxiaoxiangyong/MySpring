@@ -1,5 +1,7 @@
 package com.zhangying.myspring.test.bean;
 
+import com.zhangying.myspring.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import java.util.Map;
  * @version: 1.0
  * @date: 2024/4/29 21:14
  */
+@Component("userDao")
 public class UserDao {
 
     private static Map<String, String> database = new HashMap<>();
@@ -16,6 +19,12 @@ public class UserDao {
 
     public void initDataMethod(){
         System.out.println("执行：init-method");
+        database.put("10001", "小傅哥");
+        database.put("10002", "八杯水");
+        database.put("10003", "阿毛");
+    }
+
+    static {
         database.put("10001", "小傅哥");
         database.put("10002", "八杯水");
         database.put("10003", "阿毛");
