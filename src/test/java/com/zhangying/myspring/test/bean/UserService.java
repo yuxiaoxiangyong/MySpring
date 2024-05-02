@@ -4,6 +4,7 @@ import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.*;
 import com.zhangying.myspring.context.ApplicationContext;
 import com.zhangying.myspring.context.ApplicationContextAware;
+import jdk.nashorn.internal.runtime.Context;
 
 /**
  * @className: UserService
@@ -11,7 +12,7 @@ import com.zhangying.myspring.context.ApplicationContextAware;
  * @version: 1.0
  * @date: 2024/4/29 15:18
  */
-public class UserService implements InitializingBean, DisposableBean, ApplicationContextAware, BeanFactoryAware, BeanNameAware,BeanClassLoaderAware {
+public class UserService implements InitializingBean, DisposableBean, ApplicationContextAware, BeanFactoryAware, BeanNameAware,BeanClassLoaderAware, IUserService {
 
     private String name;
     private String uId;
@@ -25,7 +26,13 @@ public class UserService implements InitializingBean, DisposableBean, Applicatio
     //private BeanFactory beanFactory;
 
     public void queryUserInfo(){
-        System.out.println(iUserDao.queryUserName("10001") + company);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("queryUserInfo被调用了");
+        //System.out.println(iUserDao.queryUserName("10001") + company);
     }
 
     public void queryUserInfo(String id){
