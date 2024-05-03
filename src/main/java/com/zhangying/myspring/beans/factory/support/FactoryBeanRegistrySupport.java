@@ -1,7 +1,6 @@
 package com.zhangying.myspring.beans.factory.support;
 
 import cn.hutool.core.bean.BeanException;
-import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.FactoryBean;
 
 import java.util.HashMap;

@@ -1,7 +1,6 @@
 package com.zhangying.myspring.beans.factory.support;
 
 import com.zhangying.myspring.beans.BeansException;
-import com.zhangying.myspring.beans.factory.BeanFactory;
 import com.zhangying.myspring.beans.factory.FactoryBean;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.config.BeanPostProcessor;

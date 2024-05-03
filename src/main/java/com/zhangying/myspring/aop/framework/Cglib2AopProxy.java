@@ -1,6 +1,7 @@
 package com.zhangying.myspring.aop.framework;
 
 import com.zhangying.myspring.aop.AdvisedSupport;
+import com.zhangying.myspring.util.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -23,11 +24,21 @@ public class Cglib2AopProxy implements AopProxy{
 
     @Override
     public Object getProxy() {
+        /*
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(advisedSupport.getTargetSource().getTarget().getClass());
         enhancer.setInterfaces(advisedSupport.getTargetSource().getTargetClass());
         enhancer.setCallback(new DynamicAdvisedInterceptor(advisedSupport));
         return enhancer.create(); // 返回动态的代理对象
+        */
+
+        Enhancer enhancer = new Enhancer();
+        Class<?> aClass = advisedSupport.getTargetSource().getTarget().getClass();
+        aClass = ClassUtils.isCglibProxyClass(aClass)? aClass.getSuperclass():aClass;  // 支持代理本类
+        enhancer.setSuperclass(aClass);
+        enhancer.setInterfaces(advisedSupport.getTargetSource().getTargetClass());
+        enhancer.setCallback(new DynamicAdvisedInterceptor(advisedSupport));
+        return enhancer.create();
     }
 
     private static class DynamicAdvisedInterceptor implements MethodInterceptor{

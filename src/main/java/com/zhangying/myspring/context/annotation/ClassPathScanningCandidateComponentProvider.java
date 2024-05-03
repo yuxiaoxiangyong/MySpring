@@ -1,11 +1,9 @@
 package com.zhangying.myspring.context.annotation;
 
 import cn.hutool.core.util.ClassUtil;
-import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

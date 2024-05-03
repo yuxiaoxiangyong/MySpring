@@ -3,9 +3,10 @@ package com.zhangying.myspring.test;
 import com.zhangying.myspring.beans.factory.support.DefaultListableBeanFactory;
 import com.zhangying.myspring.beans.factory.xml.XmlBeanDefinitionReader;
 import com.zhangying.myspring.context.support.ClassPathXmlApplicationContext;
+import com.zhangying.myspring.test.bean.Husband;
 import com.zhangying.myspring.test.bean.IUserService;
 import com.zhangying.myspring.test.bean.UserService;
-import com.zhangying.myspring.test.common.MyBeanPostProcessor;
+import com.zhangying.myspring.test.bean.Wife;
 import com.zhangying.myspring.test.event.CustomEvent;
 import org.junit.Test;
 
@@ -81,4 +82,16 @@ public class TestXmlBeanDefinition {
         userService.queryUserInfo();
     }
 
+
+    @Test
+    public void test_circular() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:currentdependency.xml");
+        Husband husband = applicationContext.getBean("husband", Husband.class);
+        Wife wife = applicationContext.getBean("wife", Wife.class);
+        // 简单类的循环依赖问题 && 代理
+        // System.out.println("媳妇的老公：" + husband.getWife().queryHusband()); // A 依赖 B  B 依赖A √
+        //System.out.println("老公的媳妇：" + wife.getHusband().queryWife());
+        System.out.println("老公的媳妇：" + husband.queryWife());
+        System.out.println("媳妇的老公：" + wife.queryHusband());
+    }
 }

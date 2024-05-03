@@ -1,7 +1,6 @@
 package com.zhangying.myspring.beans.factory.xml;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
 import com.zhangying.myspring.beans.BeansException;
 import com.zhangying.myspring.beans.PropertyValue;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;

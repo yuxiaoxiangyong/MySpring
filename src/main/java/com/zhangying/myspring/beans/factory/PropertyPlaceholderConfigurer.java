@@ -6,7 +6,6 @@ import com.zhangying.myspring.beans.PropertyValue;
 import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.config.BeanDefinition;
 import com.zhangying.myspring.beans.factory.config.BeanFactoryPostProcessor;
-import com.zhangying.myspring.beans.factory.config.BeanPostProcessor;
 import com.zhangying.myspring.core.io.DefaultResourceLoader;
 import com.zhangying.myspring.core.io.Resource;
 import com.zhangying.myspring.util.StringValueResolver;

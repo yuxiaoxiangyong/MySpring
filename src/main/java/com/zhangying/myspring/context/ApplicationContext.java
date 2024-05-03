@@ -2,7 +2,6 @@ package com.zhangying.myspring.context;
 
 import com.zhangying.myspring.beans.factory.HierarchicalBeanFactory;
 import com.zhangying.myspring.beans.factory.ListableBeanFactory;
-import com.zhangying.myspring.core.io.Resource;
 import com.zhangying.myspring.core.io.ResourceLoader;
 
 /**

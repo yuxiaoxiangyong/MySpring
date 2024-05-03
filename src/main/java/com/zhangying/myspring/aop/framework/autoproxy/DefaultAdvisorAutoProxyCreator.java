@@ -13,6 +13,9 @@ import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 代理
@@ -25,66 +28,37 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
 
     private DefaultListableBeanFactory beanFactory;
 
+    private final Set<Object> earlyProxyReferences = Collections.synchronizedSet(new HashSet<Object>());
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = ((DefaultListableBeanFactory) beanFactory);
+        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
-
 
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
-        /*if (isInfrastructureClass(beanClass)) return null;
-
-        // 切面Bean （包含切点 + 通知（拦截方法））
-        Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
-
-        for (AspectJExpressionPointcutAdvisor advisor : advisors) {
-            ClassFilter classFilter = advisor.getPointcut().getClassFilter();
-            if (!classFilter.matches(beanClass)) continue; // 判断当前bean是否位于切点表达式的作用域
-
-            AdvisedSupport advisedSupport = new AdvisedSupport();
-
-            // 构造目标对象
-            TargetSource targetSource = null;
-            try {
-                targetSource = new TargetSource(beanClass.getDeclaredConstructor().newInstance());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            advisedSupport.setTargetSource(targetSource);
-            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice()); // advice需要自己定义？
-            advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
-            advisedSupport.setProxyTargetClass(false);
-
-            // 生成并返回代理对象
-            return new ProxyFactory(advisedSupport).getProxy();
-
-        }*/
-
         return null;
     }
-
 
     private boolean isInfrastructureClass(Class<?> beanClass) {
         return Advice.class.isAssignableFrom(beanClass) || Pointcut.class.isAssignableFrom(beanClass) || Advisor.class.isAssignableFrom(beanClass);
     }
-
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }
 
-
-    /**
-     * 扩充代理对象的属性填充应该是在生成代理对象BeanPostProcessor中进行处理
-     * @param bean
-     * @param beanName
-     * @return
-     * @throws BeansException
-     */
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (!earlyProxyReferences.contains(beanName)) {
+            return wrapIfNecessary(bean, beanName);
+        }
 
+        return bean;
+    }
+
+    protected Object wrapIfNecessary(Object bean, String beanName) throws BeansException {
         if (isInfrastructureClass(bean.getClass())) return bean;
 
         Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
@@ -100,7 +74,7 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
             advisedSupport.setTargetSource(targetSource);
             advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
             advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
-            advisedSupport.setProxyTargetClass(false);
+            advisedSupport.setProxyTargetClass(true);
 
             // 返回代理对象
             return new ProxyFactory(advisedSupport).getProxy();
@@ -109,11 +83,19 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
         return bean;
     }
 
-
-
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        earlyProxyReferences.add(beanName);
+        return wrapIfNecessary(bean, beanName);
+    }
 
     @Override
     public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException {
         return pvs;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        return true;
     }
 }

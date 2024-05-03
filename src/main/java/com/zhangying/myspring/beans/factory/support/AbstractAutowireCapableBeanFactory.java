@@ -7,6 +7,8 @@ import com.zhangying.myspring.beans.PropertyValue;
 import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.*;
 import com.zhangying.myspring.beans.factory.config.*;
+import com.zhangying.myspring.beans.factory.*;
+import com.zhangying.myspring.beans.factory.config.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -49,14 +51,28 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
              */
 
             // pre. 判断是否返回代理对象  代理对象为满足OCP原则设计的，根本不需要加入到Bean容器中的
-            // 这里直接生成代理对象，缺少对代理对象的属性赋值
+            // 这里直接生成代理对象，缺少对 代理的 原对象属性赋值 访问代理对象的非代理内容时，实际访问的
+            // 是目标对象的引用
             // 因此把PostProcessBeforInstantiation的处理内容转移到PostProcessAfterInstantiation中
+            // 走Bean的生命周期来是实现动态代理，同时会将目标Bean存入
             bean = resolveBeforeInstantiation(beanName, beanDefinition);
             if(null != bean){
                 return bean;
             }
             // 实例化Bean      生命周期第一步
             bean = createBeanInstance(beanDefinition, beanName, args);
+
+            // 处理循环依赖，将实例化后的Bean对象提前放入缓存中暴露出来()
+            if (beanDefinition.isSingleton()) {
+                Object finalBean = bean;
+                addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, beanDefinition, finalBean));
+            }
+
+            // 实例化后判断
+            boolean continueWithPropertyPopulation = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
+            if (!continueWithPropertyPopulation) {
+                return bean;
+            }
 
             // 在设置bean属性之前，允许BeanPostProcessor修改属性值（@Value @Autowire 注解自动进行DI）
             applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
@@ -74,11 +90,55 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
         // 判断Scope singleton or prototype
+        Object exposedObject = bean;
         if(beanDefinition.isSingleton()){
-            addSingleton(beanName, bean); // 所以说目前已经实例化的所有bean都是单例的
+            exposedObject = getSingleton(beanName);
+            registrySingleton(beanName, exposedObject);
+            //addSingleton(beanName, bean); // 所以说目前已经实例化的所有bean都是单例的
         }
 
-        return bean;
+        return exposedObject;
+    }
+
+
+    /**
+     * Bean 实例化后对于返回 false 的对象，不在执行后续设置 Bean 对象属性的操作
+     * @param beanName
+     * @param bean
+     * @return
+     */
+    private boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) throws BeansException {
+        boolean continueWithPropertyPopulation = true;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                InstantiationAwareBeanPostProcessor instantiationAwareBeanPostProcessor = (InstantiationAwareBeanPostProcessor) beanPostProcessor;
+                if (!instantiationAwareBeanPostProcessor.postProcessAfterInstantiation(bean, beanName)) {
+                    continueWithPropertyPopulation = false;
+                    break;
+                }
+            }
+        }
+        return continueWithPropertyPopulation;
+    }
+
+
+    /**
+     * 通过BeanPostProcessor获取依赖
+     * @param beanName
+     * @param beanDefinition
+     * @param bean
+     * @return
+     */
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) throws BeansException {
+        Object exposedObject = bean;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                exposedObject = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).getEarlyBeanReference(exposedObject, beanName);
+                if (null == exposedObject) return exposedObject;
+            }
+        }
+
+        return exposedObject;
     }
 
 
