@@ -9,6 +9,7 @@ import com.zhangying.myspring.stereotype.Component;
 import java.util.Set;
 
 /**
+ * 完成自动包扫描
  * @className: ClassPathBeanDefinitonScanner
  * @author: Ying Zhang
  * @version: 1.0

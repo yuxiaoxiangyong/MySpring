@@ -8,6 +8,8 @@ package com.zhangying.myspring.test.bean;
  */
 public class MyUserService implements IUserService{
 
+    private String token;
+
     @Override
     public void queryUserInfo() {
         try {
@@ -15,6 +17,6 @@ public class MyUserService implements IUserService{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("queryUserInfo被调用了");
+        System.out.println("queryUserInfo被调用了" + ",token:" + token);
     }
 }

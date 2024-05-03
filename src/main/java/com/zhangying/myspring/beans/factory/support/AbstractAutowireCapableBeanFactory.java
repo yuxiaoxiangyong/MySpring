@@ -49,6 +49,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
              */
 
             // pre. 判断是否返回代理对象  代理对象为满足OCP原则设计的，根本不需要加入到Bean容器中的
+            // 这里直接生成代理对象，缺少对代理对象的属性赋值
+            // 因此把PostProcessBeforInstantiation的处理内容转移到PostProcessAfterInstantiation中
             bean = resolveBeforeInstantiation(beanName, beanDefinition);
             if(null != bean){
                 return bean;
@@ -217,7 +219,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (Exception e) {
             throw new BeansException("Invocation of init method of bean[" + beanName + "] failed");
         }
-        ;
+
 
         // 2. 执行 BeanPostProcessor After 处理
         wrappedBean = applyBeanPostProcessorsAfterInitialization(bean, beanName);

@@ -4,6 +4,7 @@ import com.zhangying.myspring.aop.*;
 import com.zhangying.myspring.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import com.zhangying.myspring.aop.framework.ProxyFactory;
 import com.zhangying.myspring.beans.BeansException;
+import com.zhangying.myspring.beans.PropertyValues;
 import com.zhangying.myspring.beans.factory.BeanFactory;
 import com.zhangying.myspring.beans.factory.BeanFactoryAware;
 import com.zhangying.myspring.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -14,6 +15,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import java.util.Collection;
 
 /**
+ * 代理
  * @className: DefaultAdvisorAutoProxyCreator
  * @author: Ying Zhang
  * @version: 1.0
@@ -31,7 +33,7 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
 
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
-        if (isInfrastructureClass(beanClass)) return null;
+        /*if (isInfrastructureClass(beanClass)) return null;
 
         // 切面Bean （包含切点 + 通知（拦截方法））
         Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
@@ -57,7 +59,7 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
             // 生成并返回代理对象
             return new ProxyFactory(advisedSupport).getProxy();
 
-        }
+        }*/
 
         return null;
     }
@@ -74,9 +76,44 @@ public abstract class DefaultAdvisorAutoProxyCreator implements InstantiationAwa
     }
 
 
-    @Override
+    /**
+     * 扩充代理对象的属性填充应该是在生成代理对象BeanPostProcessor中进行处理
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+
+        if (isInfrastructureClass(bean.getClass())) return bean;
+
+        Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
+
+        for (AspectJExpressionPointcutAdvisor advisor : advisors) {
+            ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+            // 过滤匹配类
+            if (!classFilter.matches(bean.getClass())) continue;
+
+            AdvisedSupport advisedSupport = new AdvisedSupport();
+
+            TargetSource targetSource = new TargetSource(bean);
+            advisedSupport.setTargetSource(targetSource);
+            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+            advisedSupport.setProxyTargetClass(false);
+
+            // 返回代理对象
+            return new ProxyFactory(advisedSupport).getProxy();
+        }
+
         return bean;
     }
 
+
+
+
+    @Override
+    public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        return pvs;
+    }
 }

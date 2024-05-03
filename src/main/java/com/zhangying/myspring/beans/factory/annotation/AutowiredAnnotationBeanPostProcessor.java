@@ -13,6 +13,7 @@ import com.zhangying.myspring.util.ClassUtils;
 import java.lang.reflect.Field;
 
 /**
+ * 通过注解注入属性信息
  * @className: AutowiredAnnotationBeanPostProcessor
  * @author: Ying Zhang
  * @version: 1.0
@@ -45,7 +46,7 @@ public class AutowiredAnnotationBeanPostProcessor implements InstantiationAwareB
             }
         }
 
-        // 2. 处理注解 @Autowired 默认byType注入
+        // 2. 处理注解 @Autowired 默认byType
         // @Qualifier 根据名称进行注入
         for (Field field : declaredFields) {
             Autowired autowiredAnnotation = field.getAnnotation(Autowired.class);
@@ -75,11 +76,13 @@ public class AutowiredAnnotationBeanPostProcessor implements InstantiationAwareB
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return null;
+        return bean;
     }
 
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
         return null;
     }
+
+
 }
